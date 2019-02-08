@@ -102,19 +102,17 @@ $(".cb-table").tablesorter({
 (async function() {
     try{
 
-    const nowDate = new Date();
-    nowDate.setHours(0, 0, 0, 0);
+    const date = new Date();    
+    date.setHours(0, 0, 0, 0);
 
     if( localStorage["exchange"]===undefined || 
-        nowDate > new Date(JSON.parse(localStorage["exchange"]).date) ) {
+        date > new Date(JSON.parse(localStorage["exchange"]).date) ) {
 
         const exchange = await $.get(await GM.getResourceUrl("exchange-api"));
 
-        localStorage["exchange"] = JSON.stringify({
-            date : nowDate,
-            exchange : exchange
-        });
+        localStorage["exchange"] = JSON.stringify({ date, exchange });
     }
+
 
     const exchange = JSON.parse(localStorage["exchange"]).exchange;
     $(".cb-table td")
@@ -230,12 +228,11 @@ if( $('div.steam_read_selected').length) {
                 );
             },
             click: async function() {
-                let ids = $(".steam_read_selected .item_content a")
+                let ids = $(".steam_read_selected .item_content .name")
                             .map((idx, item) => {
                                 const [match, div, id] = /steampowered\.com\/(\w+)\/(\d+)/.exec( $(item).attr("href") );
                                 return {div,id};
                             }).toArray();
-                
                 if(!$applet) {
                     $applet = $(await $.get(await GM.getResourceUrl("popup-layout")));
                     $applet.appendTo("body")
@@ -245,7 +242,6 @@ if( $('div.steam_read_selected').length) {
                                         field : {title: "Game", ratings: "Ratings", cards: "Cards", archvment: "Archv", bundles: "BDL", lowest: "Lowest", retail: "Retail"},
                                         record : {title: "?", ratings: "?", cards: "?", archvment: "?", bundles: "?", lowest: "?", retail: "?"} });
                 }
-
                 $applet.steamCb("popUp")
                         .steamCb("addTable")
                         .steamCb("addGames", ids);

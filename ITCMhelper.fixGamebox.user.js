@@ -1,17 +1,17 @@
 // ==UserScript==
 // @name         ITCMhelper.fixGamebox
 // @namespace    ITCMhelper
-// @version      0.1.0
+// @version      0.1.1
 // @description  Fix itcm game box.
 // @author       narci <jwch11@gmail.com>
 // @match        *://itcm.co.kr/*
 // @require      http://code.jquery.com/jquery-3.3.1.min.js
+// @updateURL    https://raw.githubusercontent.com/NarciSource/ITCMhelper/master/ITCMhelper.fixGamebox.meta.js
+// @downloadURL  https://raw.githubusercontent.com/NarciSource/ITCMhelper/master/ITCMhelper.fixGamebox.user.js
 // @grant        GM.xmlHttpRequest
 // @connect      store.steampowered.com
 // @license      MIT
 // ==/UserScript==
-
-this.$ = window.jQuery.noConflict(true);
 
 if (!localStorage["profileinfo"]) {
     loadDynamicstore();
@@ -83,13 +83,26 @@ function fixTag(profileinfo) {
                 if (div === "app" && profileinfo.rgOwnedApps.includes(id)) {
                     $(app).removeClass('no_mi_app')
                             .addClass('mi_app')
-                            .siblings().last().after($(app));
+                            .siblings('.mi_app_live').eq(1).after($(app));
 
                 }
                 if (div === "package" && profileinfo.rgOwnedPackages.includes(id)) {
                     $(app).removeClass('no_mi_app')
                             .addClass('mi_app')
-                            .siblings().last().after($(app));
+                            .siblings('.mi_app_live').eq(1).after($(app));
+                }
+            }
+            if ($(app).hasClass('mi_app')) {
+                if (div === "app" && !profileinfo.rgOwnedApps.includes(id)) {
+                    $(app).removeClass('mi_app')
+                            .addClass('no_mi_app')
+                            .siblings('.mi_app_live').eq(0).after($(app));
+
+                }
+                if (div === "package" && !profileinfo.rgOwnedPackages.includes(id)) {
+                    $(app).removeClass('mi_app')
+                            .addClass('no_mi_app')
+                            .siblings('.mi_app_live').eq(0).after($(app));
                 }
             }
 
@@ -98,7 +111,7 @@ function fixTag(profileinfo) {
                 $(app).css({background:'#ffdb52'});
             }
 
-            if (Object.keys(profileinfo.rgIgnoredApps).includes(id)) {
+            if (Object.keys(profileinfo.rgIgnoredApps).includes(String(id))) {
                 $(app).css({background:'gainsboro'});
             }
         });
